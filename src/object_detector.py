@@ -1,10 +1,6 @@
 import torch
 from ultralytics import YOLO
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 import numpy as np
-from torchvision.transforms import functional as F
-from PIL import Image
 from norfair import Detection, Tracker
 from norfair.tracker import TrackedObject
 import cv2

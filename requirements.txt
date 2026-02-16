@@ -7,3 +7,5 @@ opencv-python
 norfair
 pydantic_settings
 jupyter
+google-cloud-storage
+google-cloud-pubsub
