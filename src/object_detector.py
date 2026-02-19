@@ -70,7 +70,11 @@ class ObjectDetector:
         cv2.imwrite(output_path, output_file)
         return detections
 
-    def detect_video(self, video_path: str, tracker: Tracker = None):
+    def detect_video(self,
+                     video_path: str,
+                     tracker: Tracker = None,
+                     push_to_repo: bool = False):
+
         video_path_basename = os.path.basename(video_path)
         output_path = os.path.join("output", video_path_basename)
         # Set output video writer with codec
@@ -97,7 +101,13 @@ class ObjectDetector:
         # Iterate over frames and pass each for prediction
         while frame_read:
             # Perform object detection and add to output file
-            output_file, _ = self.detect(image, visualize=False, tracker=tracker)
+            output_file, detections = self.detect(image, visualize=False, tracker=tracker)
+
+            if self.repo_manager and tracker and push_to_repo:
+                image_bytes = image.tobytes()
+                h, w, c = image.shape
+                dtype = image.dtype
+                self.repo_manager.manage(detections, image_bytes, self.class_mapping)
 
             # Write frame with predictions to video
             out.write(output_file)
