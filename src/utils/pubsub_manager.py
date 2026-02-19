@@ -13,10 +13,11 @@ setup_logging()
 class PubSubManager:
 
     topic_name: str
+    project_id: str
     service_name: Optional[str] = None
 
     def __post_init__(self) -> None:
-        self.publisher = pubsub_v1.PublisherClient()
+        self.publisher = pubsub_v1.PublisherClient(project=self.project_id)
 
     def publish_detection(self, topic_path, message_data, service_name=None):
         try:

@@ -3,15 +3,21 @@ from ultralytics import YOLO
 import numpy as np
 from norfair import Detection, Tracker
 from norfair.tracker import TrackedObject
+from typing import Union
 import cv2
 import os
 
+from .utils.repo import RepoManager
+
 class ObjectDetector:
 
-    def __init__(self, model_path: str):
+    def __init__(self,
+                 model_path: str,
+                 repo_manager: Union[RepoManager, None] = None,):
         
         self.model_path = model_path
         self.class_mapping = None
+        self.repo_manager = repo_manager
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         if "yolo" in model_path.lower() or 'weights' in model_path.lower():
             self.model = YOLO(model_path)
@@ -33,10 +39,16 @@ class ObjectDetector:
                 break
 
             # Perform object detection on the frame
-            output_frame, _ = self.detect(frame, visualize=False, tracker=tracker)
+            output_frame, detections = self.detect(frame, visualize=False, tracker=tracker)
 
             # Display the resulting frame
             cv2.imshow('Real-Time Object Detection', output_frame)
+
+            if self.repo_manager and tracker:
+                image_bytes = frame.tobytes()
+                h, w, c = frame.shape
+                dtype = frame.dtype
+                self.repo_manager.manage(detections, image_bytes, self.class_mapping)
 
             # Break the loop on 'q' key press
             if cv2.waitKey(1) & 0xFF == ord('q'):
